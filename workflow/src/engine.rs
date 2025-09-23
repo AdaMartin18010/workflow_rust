@@ -11,6 +11,13 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::time::Instant;
 use tokio::sync::mpsc;
 use tokio::time::Duration;
+use tracing::instrument;
+use metrics::{counter, histogram, gauge};
+
+#[cfg(feature = "persistence")]
+use crate::persistence::{InMemoryAdapter, PersistenceAdapter, StateSnapshot};
+#[cfg(feature = "middleware")]
+use crate::middleware::{MiddlewareContext, WorkflowMiddlewareManager};
 
 /// 工作流引擎 / Workflow Engine
 ///
@@ -29,6 +36,12 @@ pub struct WorkflowEngine {
     performance_monitor: Arc<PerformanceMonitor>,
     /// 配置选项 / Configuration Options
     config: EngineConfig,
+    /// 持久化适配器 / Persistence Adapter
+    #[cfg(feature = "persistence")]
+    persistence: Option<std::sync::Arc<dyn PersistenceAdapter>>,
+    /// 中间件管理器 / Middleware Manager
+    #[cfg(feature = "middleware")]
+    middleware_manager: Option<WorkflowMiddlewareManager>,
 }
 
 /// 引擎配置 / Engine Configuration
@@ -76,10 +89,39 @@ impl WorkflowEngine {
             event_receiver: Some(event_receiver),
             performance_monitor,
             config,
+            #[cfg(feature = "persistence")]
+            persistence: None,
+            #[cfg(feature = "middleware")]
+            middleware_manager: None,
         }
     }
 
+    /// 使用内存持久化适配器 / Use in-memory persistence adapter
+    #[cfg(feature = "persistence")]
+    pub fn with_inmemory_persistence(mut self) -> Self {
+        self.persistence = Some(std::sync::Arc::new(InMemoryAdapter::new()));
+        self
+    }
+
+    /// 设置持久化适配器 / Set persistence adapter
+    #[cfg(feature = "persistence")]
+    pub fn with_persistence_adapter(
+        mut self,
+        adapter: std::sync::Arc<dyn PersistenceAdapter>,
+    ) -> Self {
+        self.persistence = Some(adapter);
+        self
+    }
+
+    /// 注入中间件管理器 / Inject middleware manager
+    #[cfg(feature = "middleware")]
+    pub fn with_middleware_manager(mut self, manager: WorkflowMiddlewareManager) -> Self {
+        self.middleware_manager = Some(manager);
+        self
+    }
+
     /// 注册工作流定义 / Register Workflow Definition
+    #[instrument(skip(self, definition), fields(workflow = %name))]
     pub async fn register_workflow(
         &self,
         name: String,
@@ -114,10 +156,16 @@ impl WorkflowEngine {
             );
         }
 
+        // 指标埋点 / Metrics instrumentation
+        let elapsed = start_time.elapsed().as_secs_f64();
+        counter!("workflow_register_total").increment(1);
+        histogram!("workflow_op_duration_seconds", "op" => "register_workflow").record(elapsed);
+
         Ok(())
     }
 
     /// 启动工作流实例 / Start Workflow Instance
+    #[instrument(skip(self, initial_data), fields(workflow = %name))]
     pub async fn start_workflow(
         &self,
         name: &str,
@@ -176,7 +224,36 @@ impl WorkflowEngine {
             );
         }
 
+        // 指标埋点 / Metrics instrumentation
+        let elapsed = start_time.elapsed().as_secs_f64();
+        counter!("workflow_start_total", "workflow" => name.to_string()).increment(1);
+        histogram!("workflow_op_duration_seconds", "op" => "start_workflow").record(elapsed);
+        gauge!("workflow_instances_current").increment(1.0);
+
         Ok(instance_id)
+    }
+
+    /// 带幂等键的启动 / Start workflow with idempotency key
+    #[cfg(feature = "persistence")]
+    pub async fn start_workflow_with_idempotency(
+        &self,
+        name: &str,
+        initial_data: WorkflowData,
+        idempotency_key: &str,
+        ttl_seconds: u64,
+    ) -> Result<String, WorkflowError> {
+        if let Some(store) = &self.persistence {
+            let ok = store
+                .put_idempotency_key(idempotency_key, ttl_seconds)
+                .await
+                .map_err(|e| WorkflowError::StorageError(e.to_string()))?;
+            if !ok {
+                return Err(WorkflowError::ConfigurationError(
+                    "Duplicate idempotency key".to_string(),
+                ));
+            }
+        }
+        self.start_workflow(name, initial_data).await
     }
 
     /// 获取工作流实例状态 / Get Workflow Instance State
@@ -190,6 +267,7 @@ impl WorkflowEngine {
     }
 
     /// 处理工作流事件 / Handle Workflow Events
+    #[instrument(skip(self))]
     pub async fn process_events(&mut self) -> Result<(), WorkflowError> {
         while let Some(receiver) = &mut self.event_receiver {
             if let Some(event) = receiver.recv().await {
@@ -233,6 +311,11 @@ impl WorkflowEngine {
                         None,
                     );
                 }
+
+                // 指标埋点 / Metrics instrumentation
+                let elapsed = start_time.elapsed().as_secs_f64();
+                histogram!("workflow_event_duration_seconds").record(elapsed);
+                counter!("workflow_events_processed_total").increment(1);
             } else {
                 break;
             }
@@ -242,6 +325,7 @@ impl WorkflowEngine {
     }
 
     /// 处理启动事件 / Handle Start Event
+    #[instrument(skip(self))]
     async fn handle_start_event(
         &self,
         instance_id: String,
@@ -265,6 +349,23 @@ impl WorkflowEngine {
             }
         }
 
+        // 持久化实例状态 / Persist instance state
+        #[cfg(feature = "persistence")]
+        if let Some(store) = &self.persistence {
+            if let Some(instance) = self.instances.read().unwrap().get(&instance_id).cloned() {
+                let snapshot = StateSnapshot {
+                    workflow_id: instance.id.clone(),
+                    state: serde_json::json!({
+                        "workflow": workflow_name,
+                        "state": instance.current_state,
+                        "status": format!("{:?}", instance.status),
+                    }),
+                    updated_at: chrono::Utc::now().timestamp(),
+                };
+                let _ = store.save_state(snapshot).await;
+            }
+        }
+
         // 发送状态转换事件 / Send state transition event
         let event = WorkflowEvent::StateTransition {
             instance_id: instance_id.clone(),
@@ -278,10 +379,13 @@ impl WorkflowEngine {
             .await
             .map_err(|_| WorkflowError::EventChannelClosed)?;
 
+        counter!("workflow_events_sent_total", "kind" => "state_transition").increment(1);
+
         Ok(())
     }
 
     /// 处理状态转换事件 / Handle State Transition Event
+    #[instrument(skip(self, data))]
     async fn handle_state_transition_event(
         &self,
         instance_id: String,
@@ -289,11 +393,42 @@ impl WorkflowEngine {
         to_state: String,
         data: Option<Value>,
     ) -> Result<(), WorkflowError> {
+        // 中间件（前置）/ Middleware (before)
+        #[cfg(feature = "middleware")]
+        if let Some(manager) = &self.middleware_manager {
+            let mut chain = manager
+                .create_chain(MiddlewareContext::new(
+                    crate::types::utils::generate_instance_id(),
+                    instance_id.clone(),
+                    data.clone().unwrap_or(serde_json::json!({})),
+                ))
+                .await
+                .map_err(|e| WorkflowError::InternalError(e.to_string()))?;
+            let _ = chain.execute().await; // 忽略中间件错误，避免中断核心流
+        }
+
         // 更新实例状态 / Update instance state
         {
             let mut instances = self.instances.write().unwrap();
             if let Some(instance) = instances.get_mut(&instance_id) {
                 instance.transition(to_state.clone(), data);
+            }
+        }
+
+        // 持久化实例状态 / Persist instance state
+        #[cfg(feature = "persistence")]
+        if let Some(store) = &self.persistence {
+            if let Some(instance) = self.instances.read().unwrap().get(&instance_id).cloned() {
+                let snapshot = StateSnapshot {
+                    workflow_id: instance.id.clone(),
+                    state: serde_json::json!({
+                        "workflow": instance.workflow_name,
+                        "state": instance.current_state,
+                        "status": format!("{:?}", instance.status),
+                    }),
+                    updated_at: chrono::Utc::now().timestamp(),
+                };
+                let _ = store.save_state(snapshot).await;
             }
         }
 
@@ -318,12 +453,15 @@ impl WorkflowEngine {
                 .send(event)
                 .await
                 .map_err(|_| WorkflowError::EventChannelClosed)?;
+
+            counter!("workflow_events_sent_total", "kind" => "complete").increment(1);
         }
 
         Ok(())
     }
 
     /// 处理完成事件 / Handle Complete Event
+    #[instrument(skip(self, result))]
     async fn handle_complete_event(
         &self,
         instance_id: String,
@@ -333,14 +471,37 @@ impl WorkflowEngine {
         {
             let mut instances = self.instances.write().unwrap();
             if let Some(instance) = instances.get_mut(&instance_id) {
-                instance.complete(result);
+                let result_for_instance = result.clone();
+                instance.complete(result_for_instance);
             }
         }
+
+        // 持久化实例状态 / Persist instance state
+        #[cfg(feature = "persistence")]
+        if let Some(store) = &self.persistence {
+            if let Some(instance) = self.instances.read().unwrap().get(&instance_id).cloned() {
+                let snapshot = StateSnapshot {
+                    workflow_id: instance.id.clone(),
+                    state: serde_json::json!({
+                        "workflow": instance.workflow_name,
+                        "state": instance.current_state,
+                        "status": format!("{:?}", instance.status),
+                        "result": result,
+                    }),
+                    updated_at: chrono::Utc::now().timestamp(),
+                };
+                let _ = store.save_state(snapshot).await;
+            }
+        }
+
+        counter!("workflow_instances_completed_total").increment(1);
+        gauge!("workflow_instances_current").decrement(1.0);
 
         Ok(())
     }
 
     /// 处理错误事件 / Handle Error Event
+    #[instrument(skip(self))]
     async fn handle_error_event(
         &self,
         instance_id: String,
@@ -350,14 +511,35 @@ impl WorkflowEngine {
         {
             let mut instances = self.instances.write().unwrap();
             if let Some(instance) = instances.get_mut(&instance_id) {
-                instance.mark_error(error);
+                let err_for_instance = error.clone();
+                instance.mark_error(err_for_instance);
             }
         }
 
+        // 持久化实例状态 / Persist instance state
+        #[cfg(feature = "persistence")]
+        if let Some(store) = &self.persistence {
+            if let Some(instance) = self.instances.read().unwrap().get(&instance_id).cloned() {
+                let snapshot = StateSnapshot {
+                    workflow_id: instance.id.clone(),
+                    state: serde_json::json!({
+                        "workflow": instance.workflow_name,
+                        "state": instance.current_state,
+                        "status": format!("{:?}", instance.status),
+                        "error": error,
+                    }),
+                    updated_at: chrono::Utc::now().timestamp(),
+                };
+                let _ = store.save_state(snapshot).await;
+            }
+        }
+
+        counter!("workflow_errors_total").increment(1);
         Ok(())
     }
 
     /// 处理超时事件 / Handle Timeout Event
+    #[instrument(skip(self))]
     async fn handle_timeout_event(
         &self,
         instance_id: String,
@@ -371,6 +553,7 @@ impl WorkflowEngine {
             }
         }
 
+        counter!("workflow_timeouts_total").increment(1);
         Ok(())
     }
 
@@ -598,6 +781,18 @@ impl WorkflowEngineBuilder {
     /// 构建工作流引擎 / Build Workflow Engine
     pub fn build(self) -> WorkflowEngine {
         WorkflowEngine::with_config(self.config)
+    }
+
+    /// 使用内存持久化适配器（需启用 persistence 特性）/ Use in-memory persistence adapter
+    #[cfg(feature = "persistence")]
+    pub fn with_inmemory_persistence(self) -> WorkflowEngine {
+        WorkflowEngine::with_config(self.config).with_inmemory_persistence()
+    }
+
+    /// 注入中间件管理器（需启用 middleware 特性）/ Inject middleware manager
+    #[cfg(feature = "middleware")]
+    pub fn with_middleware_manager(self, manager: WorkflowMiddlewareManager) -> WorkflowEngine {
+        WorkflowEngine::with_config(self.config).with_middleware_manager(manager)
     }
 }
 

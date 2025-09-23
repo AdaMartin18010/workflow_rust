@@ -5,6 +5,9 @@
 
 use workflow::rust190::*;
 use std::time::Duration;
+use axum::{Router, body::{Body, to_bytes}, http::{Request, StatusCode}};
+use tower::ServiceExt;
+use workflow::http::build_router;
 
 #[tokio::test]
 async fn test_jit_optimized_processor() {
@@ -108,4 +111,35 @@ async fn test_workflow_integration() {
     assert_eq!(result.len(), 3);
     assert_eq!(stream_results.len(), 1);
     assert_eq!(stats.total_operations, 1);
+}
+
+#[tokio::test]
+async fn test_http_health_and_version() {
+    let app: Router = build_router();
+
+    // /health
+    let response = app.clone().oneshot(Request::get("/health").body(Body::empty()).unwrap()).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    assert_eq!(body, "OK");
+
+    // /version
+    let app2: Router = build_router();
+    let response = app2.oneshot(Request::get("/version").body(Body::empty()).unwrap()).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    let body_str = String::from_utf8(body.to_vec()).unwrap();
+    assert_eq!(body_str, workflow::VERSION);
+}
+
+#[tokio::test]
+async fn test_http_stats() {
+    let app: Router = workflow::http::build_router();
+    let response = app.clone().oneshot(Request::get("/stats").body(Body::empty()).unwrap()).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    let s = String::from_utf8(body.to_vec()).unwrap();
+    let v: serde_json::Value = serde_json::from_str(&s).unwrap();
+    assert_eq!(v.get("version").and_then(|x| x.as_str()).unwrap(), workflow::VERSION);
 }

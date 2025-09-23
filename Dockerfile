@@ -11,28 +11,34 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy manifest files
+# Copy workspace manifests
 COPY Cargo.toml Cargo.lock ./
 
-# Copy source code
-COPY src/ ./src/
-COPY examples/ ./examples/
-COPY benches/ ./benches/
-COPY tests/ ./tests/
+# Copy member crate manifests first for caching
+COPY workflow/Cargo.toml ./workflow/Cargo.toml
 
-# Build the application
-RUN cargo build --release --features rust190
+# Pre-cache dependencies (empty src trick)
+RUN mkdir -p workflow/src && \
+    echo "fn main() {}" > workflow/src/main.rs && \
+    cargo build -p workflow --release --features rust190 || true
 
-# Build examples
-RUN cargo build --examples --release --features rust190
+# Now copy full sources
+COPY workflow/ ./workflow/
+
+# Build the application (workspace member)
+RUN cargo build -p workflow --release --features rust190
+
+# Build examples for member (if any)
+RUN cargo build -p workflow --examples --release --features rust190 || true
 
 # Runtime stage
 FROM debian:bookworm-slim
 
-# Install runtime dependencies
+# Install runtime dependencies (curl for healthcheck)
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

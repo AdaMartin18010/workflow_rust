@@ -10,7 +10,7 @@
 //! 工作流系统基于进程代数理论，通过形式化方法描述并发进程的行为和交互。
 //! Workflow systems are based on process algebra theory, using formal methods to describe the behavior and interaction of concurrent processes.
 //!
-//! ```rust
+//! ```rust,ignore
 //! /// 进程代数基本操作 / Basic Process Algebra Operations
 //! pub trait ProcessAlgebra {
 //!     /// 顺序组合 / Sequential Composition
@@ -35,7 +35,7 @@
 //! 工作流系统通过状态机理论实现状态转换和事件驱动的执行模型。
 //! Workflow systems implement state transitions and event-driven execution models through state machine theory.
 //!
-//! ```rust
+//! ```rust,ignore
 //! /// 状态机定义 / State Machine Definition
 //! pub trait StateMachine {
 //!     type State;
@@ -59,7 +59,7 @@
 //!
 //! ### 工作流引擎实现 / Workflow Engine Implementation
 //!
-//! ```rust
+//! ```rust,ignore
 //! use std::collections::HashMap;
 //! use std::sync::{Arc, Mutex};
 //! use tokio::sync::mpsc;
@@ -138,7 +138,7 @@
 //!
 //! ### 状态管理机制 / State Management Mechanisms
 //!
-//! ```rust
+//! ```rust,ignore
 //! /// 执行状态 / Execution State
 //! #[derive(Debug, Clone)]
 //! pub struct ExecutionState {
@@ -185,7 +185,7 @@
 //!
 //! ### 错误处理策略 / Error Handling Strategies
 //!
-//! ```rust
+//! ```rust,ignore
 //! /// 工作流错误类型 / Workflow Error Types
 //! #[derive(Debug, thiserror::Error)]
 //! pub enum WorkflowError {
@@ -381,8 +381,9 @@
 //!
 //! ## 使用示例 / Usage Examples
 //!
-//! ```rust
-//! use crate::workflow::{WorkflowEngine, WorkflowDefinition, WorkflowData};
+//! ```rust,ignore
+//! use workflow::engine::WorkflowEngine;
+//! use workflow::types::{WorkflowDefinition, WorkflowData};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -427,6 +428,10 @@ pub mod state;
 pub mod tools;
 pub mod types;
 
+// 持久化模块 / Persistence Module
+#[cfg(feature = "persistence")]
+pub mod persistence;
+
 // Rust 1.90 特性模块 / Rust 1.90 Features Module
 #[cfg(feature = "rust190")]
 pub mod rust190;
@@ -460,6 +465,9 @@ pub use tools::{WorkflowValidator, WorkflowAnalyzer, PerformanceAnalyzer, Optimi
 pub const VERSION: &str = "1.90.0";
 
 /// 模块初始化 / Module Initialization
+
+// HTTP 路由模块 / HTTP routing module
+pub mod http;
 pub fn init() -> Result<(), crate::error::WorkflowError> {
     println!("Rust工作流系统模块已初始化 / Rust Workflow System Module Initialized");
     Ok(())

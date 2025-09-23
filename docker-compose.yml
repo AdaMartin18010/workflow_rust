@@ -5,7 +5,10 @@ services:
     build: .
     ports:
       - "8080:8080"
+      - "9090:9090"
     environment:
+      - WORKFLOW_HOST=0.0.0.0
+      - WORKFLOW_PORT=8080
       - RUST_LOG=info
       - WORKFLOW_MAX_RETRIES=3
       - WORKFLOW_TIMEOUT_SECONDS=30

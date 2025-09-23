@@ -44,6 +44,15 @@ indexmap = { workspace = true, features = ["serde"] }
 reqwest = { workspace = true, features = ["json", "stream"] }
 tower = { workspace = true }
 tower-http = { workspace = true, features = ["cors", "trace"] }
+axum = { workspace = true }
+
+# 观测与追踪 / Observability and Tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "json"] }
+tracing-opentelemetry = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+opentelemetry-otlp = { workspace = true }
 
 # 工作流引擎对标 / Workflow Engine Benchmarking
 # 对标 Temporal、Cadence 等成熟框架 / Benchmarking against mature frameworks like Temporal, Cadence
@@ -55,8 +64,6 @@ tower-http = { workspace = true, features = ["cors", "trace"] }
 redis = { workspace = true, features = ["tokio-comp", "connection-manager"], optional = true }
 
 # 监控和日志 / Monitoring and Logging
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
 metrics = { workspace = true }
 metrics-exporter-prometheus = { workspace = true }
 
