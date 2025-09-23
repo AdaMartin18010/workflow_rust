@@ -3,7 +3,7 @@
 //! 本模块实现了并发工作流设计模式，包括 Actor、生产者-消费者、管道等模式。
 //! This module implements concurrent workflow design patterns, including Actor, Producer-Consumer, Pipeline, etc.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -40,7 +40,7 @@ impl WorkflowPattern for WorkflowActor {
         PatternCategory::Concurrent
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流 Actor 模式 / Applying workflow actor pattern");
 
         let result = WorkflowResult {
@@ -59,7 +59,7 @@ impl WorkflowPattern for WorkflowActor {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -90,7 +90,7 @@ impl WorkflowPattern for WorkflowProducerConsumer {
         PatternCategory::Concurrent
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流生产者-消费者模式 / Applying workflow producer-consumer pattern");
 
         let result = WorkflowResult {
@@ -109,7 +109,7 @@ impl WorkflowPattern for WorkflowProducerConsumer {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -140,7 +140,7 @@ impl WorkflowPattern for WorkflowPipeline {
         PatternCategory::Concurrent
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流管道模式 / Applying workflow pipeline pattern");
 
         let result = WorkflowResult {
@@ -159,7 +159,7 @@ impl WorkflowPattern for WorkflowPipeline {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -190,7 +190,7 @@ impl WorkflowPattern for WorkflowReactor {
         PatternCategory::Concurrent
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流反应器模式 / Applying workflow reactor pattern");
 
         let result = WorkflowResult {
@@ -209,7 +209,7 @@ impl WorkflowPattern for WorkflowReactor {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -240,7 +240,7 @@ impl WorkflowPattern for WorkflowThreadPool {
         PatternCategory::Concurrent
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流线程池模式 / Applying workflow thread pool pattern");
 
         let result = WorkflowResult {
@@ -260,7 +260,7 @@ impl WorkflowPattern for WorkflowThreadPool {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }

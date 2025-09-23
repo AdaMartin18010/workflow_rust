@@ -427,9 +427,9 @@ pub mod state;
 pub mod tools;
 pub mod types;
 
-// Rust 1.89 特性模块 / Rust 1.89 Features Module
-#[cfg(feature = "rust189")]
-pub mod rust189;
+// Rust 1.90 特性模块 / Rust 1.90 Features Module
+#[cfg(feature = "rust190")]
+pub mod rust190;
 
 // 工作流设计模式模块 / Workflow Design Patterns Module
 #[cfg(feature = "patterns")]
@@ -451,28 +451,13 @@ pub mod examples;
 mod tests;
 
 // 重新导出主要类型 / Re-export main types
-pub use engine::*;
-//pub use error::*;
-pub use tools::*;
-
-// 重新导出 Rust 1.89 特性 / Re-export Rust 1.89 features
-#[cfg(feature = "rust189")]
-pub use rust189::*;
-
-// 重新导出设计模式 / Re-export design patterns
-#[cfg(feature = "patterns")]
-pub use patterns::*;
-
-// 重新导出中间件 / Re-export middleware
-#[cfg(feature = "middleware")]
-pub use middleware::*;
-
-// 重新导出国际标准 / Re-export international standards
-#[cfg(feature = "international_standards")]
-pub use international_standards::*;
+// 注意：避免使用 glob 重新导出以防止类型名称冲突
+// Note: Avoid glob re-exports to prevent type name conflicts
+pub use engine::WorkflowEngine;
+pub use tools::{WorkflowValidator, WorkflowAnalyzer, PerformanceAnalyzer, OptimizationAdvisor};
 
 /// 工作流系统版本 / Workflow System Version
-pub const VERSION: &str = "1.89.0";
+pub const VERSION: &str = "1.90.0";
 
 /// 模块初始化 / Module Initialization
 pub fn init() -> Result<(), crate::error::WorkflowError> {

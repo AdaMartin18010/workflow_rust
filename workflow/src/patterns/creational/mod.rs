@@ -14,7 +14,7 @@ pub use factory::*;
 pub use prototype::*;
 pub use singleton::*;
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 
 /// 初始化创建型模式 / Initialize creational patterns
 pub fn init_creational_patterns() -> Result<(), Box<dyn std::error::Error>> {
@@ -51,7 +51,7 @@ impl WorkflowPattern for WorkflowBuilder {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流建造者模式 / Applying workflow builder pattern");
 
         // 实现建造者模式逻辑 / Implement builder pattern logic
@@ -69,9 +69,9 @@ impl WorkflowPattern for WorkflowBuilder {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.workflow_id.is_empty() {
-            return Err("工作流ID不能为空 / Workflow ID cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("工作流ID不能为空 / Workflow ID cannot be empty".to_string()));
         }
         Ok(())
     }
@@ -106,7 +106,7 @@ impl WorkflowPattern for WorkflowFactory {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流工厂模式 / Applying workflow factory pattern");
 
         // 实现工厂模式逻辑 / Implement factory pattern logic
@@ -131,9 +131,9 @@ impl WorkflowPattern for WorkflowFactory {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.data.get("type").is_none() {
-            return Err("工作流类型不能为空 / Workflow type cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("工作流类型不能为空 / Workflow type cannot be empty".to_string()));
         }
         Ok(())
     }
@@ -168,7 +168,7 @@ impl WorkflowPattern for WorkflowPrototype {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流原型模式 / Applying workflow prototype pattern");
 
         // 实现原型模式逻辑 / Implement prototype pattern logic
@@ -193,9 +193,9 @@ impl WorkflowPattern for WorkflowPrototype {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.data.get("prototype_id").is_none() {
-            return Err("原型ID不能为空 / Prototype ID cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("原型ID不能为空 / Prototype ID cannot be empty".to_string()));
         }
         Ok(())
     }
@@ -230,7 +230,7 @@ impl WorkflowPattern for WorkflowSingleton {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流单例模式 / Applying workflow singleton pattern");
 
         // 实现单例模式逻辑 / Implement singleton pattern logic
@@ -249,7 +249,7 @@ impl WorkflowPattern for WorkflowSingleton {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         // 单例模式通常不需要特殊验证 / Singleton pattern usually doesn't need special validation
         Ok(())
     }

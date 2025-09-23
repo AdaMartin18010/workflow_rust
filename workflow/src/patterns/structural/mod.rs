@@ -3,7 +3,7 @@
 //! 本模块实现了结构型工作流设计模式，包括适配器、桥接、组合等模式。
 //! This module implements structural workflow design patterns, including Adapter, Bridge, Composite, etc.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use serde_json::json;
 
 /// 初始化结构型模式 / Initialize structural patterns
@@ -38,7 +38,7 @@ impl WorkflowPattern for WorkflowAdapter {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流适配器模式 / Applying workflow adapter pattern");
 
         let result = WorkflowResult {
@@ -55,7 +55,7 @@ impl WorkflowPattern for WorkflowAdapter {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -86,7 +86,7 @@ impl WorkflowPattern for WorkflowBridge {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流桥接模式 / Applying workflow bridge pattern");
 
         let result = WorkflowResult {
@@ -103,7 +103,7 @@ impl WorkflowPattern for WorkflowBridge {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -134,7 +134,7 @@ impl WorkflowPattern for WorkflowComposite {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流组合模式 / Applying workflow composite pattern");
 
         let result = WorkflowResult {
@@ -151,7 +151,7 @@ impl WorkflowPattern for WorkflowComposite {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -182,7 +182,7 @@ impl WorkflowPattern for WorkflowDecorator {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流装饰器模式 / Applying workflow decorator pattern");
 
         let result = WorkflowResult {
@@ -199,7 +199,7 @@ impl WorkflowPattern for WorkflowDecorator {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -230,7 +230,7 @@ impl WorkflowPattern for WorkflowFacade {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流外观模式 / Applying workflow facade pattern");
 
         let result = WorkflowResult {
@@ -247,7 +247,7 @@ impl WorkflowPattern for WorkflowFacade {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -278,7 +278,7 @@ impl WorkflowPattern for WorkflowFlyweight {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流享元模式 / Applying workflow flyweight pattern");
 
         let result = WorkflowResult {
@@ -295,7 +295,7 @@ impl WorkflowPattern for WorkflowFlyweight {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -326,7 +326,7 @@ impl WorkflowPattern for WorkflowProxy {
         PatternCategory::Structural
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流代理模式 / Applying workflow proxy pattern");
 
         let result = WorkflowResult {
@@ -344,7 +344,7 @@ impl WorkflowPattern for WorkflowProxy {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }

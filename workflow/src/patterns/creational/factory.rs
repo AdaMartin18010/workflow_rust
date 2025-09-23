@@ -3,7 +3,7 @@
 //! 本模块实现了工作流工厂模式，根据类型创建不同的工作流实例。
 //! This module implements the workflow factory pattern, creating different workflow instances based on type.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use crate::types::{StateTransition, WorkflowDefinition};
 use serde_json::json;
 use std::collections::HashMap;
@@ -246,7 +246,7 @@ impl WorkflowPattern for WorkflowFactoryPattern {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流工厂模式 / Applying workflow factory pattern");
 
         // 从上下文数据中提取工厂参数 / Extract factory parameters from context data
@@ -289,9 +289,9 @@ impl WorkflowPattern for WorkflowFactoryPattern {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.data.get("type").is_none() {
-            return Err("工作流类型不能为空 / Workflow type cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("工作流类型不能为空 / Workflow type cannot be empty".to_string()));
         }
 
         let workflow_type_str = context
@@ -310,10 +310,10 @@ impl WorkflowPattern for WorkflowFactoryPattern {
         };
 
         if !self.factory.workflow_templates.contains_key(&workflow_type) {
-            return Err(format!(
+            return Err(PatternError::PatternNotSupported(format!(
                 "不支持的工作流类型 / Unsupported workflow type: {}",
                 workflow_type_str
-            ));
+            )));
         }
 
         Ok(())

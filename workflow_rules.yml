@@ -1,0 +1,92 @@
+groups:
+  - name: workflow.rules
+    rules:
+      - alert: WorkflowHighErrorRate
+        expr: rate(workflow_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate in workflow system"
+          description: "Workflow error rate is {{ $value }} errors per second"
+
+      - alert: WorkflowHighLatency
+        expr: histogram_quantile(0.95, rate(workflow_execution_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency in workflow execution"
+          description: "95th percentile latency is {{ $value }} seconds"
+
+      - alert: WorkflowHighMemoryUsage
+        expr: workflow_memory_usage_bytes / workflow_memory_limit_bytes > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in workflow system"
+          description: "Memory usage is {{ $value }}% of limit"
+
+      - alert: WorkflowHighCPUUsage
+        expr: rate(workflow_cpu_usage_seconds_total[5m]) > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage in workflow system"
+          description: "CPU usage is {{ $value }}%"
+
+      - alert: WorkflowLowThroughput
+        expr: rate(workflow_operations_total[5m]) < 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low throughput in workflow system"
+          description: "Throughput is {{ $value }} operations per second"
+
+      - alert: WorkflowServiceDown
+        expr: up{job="workflow-rust"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Workflow service is down"
+          description: "Workflow service has been down for more than 1 minute"
+
+      - alert: WorkflowDatabaseConnectionFailed
+        expr: workflow_database_connections_failed_total > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failures"
+          description: "Database connection failures detected"
+
+      - alert: WorkflowRedisConnectionFailed
+        expr: workflow_redis_connections_failed_total > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis connection failures"
+          description: "Redis connection failures detected"
+
+      - alert: WorkflowSessionLimitExceeded
+        expr: workflow_active_sessions / workflow_max_sessions > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Session limit nearly exceeded"
+          description: "Active sessions are {{ $value }}% of maximum"
+
+      - alert: WorkflowQueueBacklog
+        expr: workflow_queue_size > 1000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Large queue backlog"
+          description: "Queue size is {{ $value }} items"

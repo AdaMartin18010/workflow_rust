@@ -3,7 +3,7 @@
 //! 本模块实现了工作流单例模式，确保工作流实例的唯一性。
 //! This module implements the workflow singleton pattern, ensuring the uniqueness of workflow instances.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use crate::types::{StateTransition, WorkflowDefinition};
 use once_cell::sync::OnceCell;
 use serde_json::json;
@@ -106,7 +106,7 @@ impl WorkflowPattern for WorkflowSingletonPattern {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流单例模式 / Applying workflow singleton pattern");
 
         // 从上下文数据中提取单例参数 / Extract singleton parameters from context data
@@ -250,12 +250,12 @@ impl WorkflowPattern for WorkflowSingletonPattern {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         // 单例模式通常不需要特殊验证 / Singleton pattern usually doesn't need special validation
         // 但可以检查工作流名称 / But can check workflow name
         if let Some(workflow_name) = context.data.get("workflow_name").and_then(|v| v.as_str()) {
             if workflow_name.is_empty() {
-                return Err("工作流名称不能为空 / Workflow name cannot be empty".to_string());
+                return Err(PatternError::InvalidContext("工作流名称不能为空 / Workflow name cannot be empty".to_string()));
             }
         }
 

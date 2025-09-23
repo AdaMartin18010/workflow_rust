@@ -3,7 +3,7 @@
 //! 本模块实现了工作流建造者模式，提供逐步构建复杂工作流的能力。
 //! This module implements the workflow builder pattern, providing the ability to build complex workflows step by step.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use crate::types::{StateTransition, WorkflowDefinition};
 use serde_json::json;
 
@@ -151,7 +151,7 @@ impl WorkflowPattern for WorkflowBuilderPattern {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流建造者模式 / Applying workflow builder pattern");
 
         // 从上下文数据中提取建造者参数 / Extract builder parameters from context data
@@ -203,13 +203,13 @@ impl WorkflowPattern for WorkflowBuilderPattern {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.workflow_id.is_empty() {
-            return Err("工作流ID不能为空 / Workflow ID cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("工作流ID不能为空 / Workflow ID cannot be empty".to_string()));
         }
 
         if context.data.get("builder_name").is_none() {
-            return Err("建造者名称不能为空 / Builder name cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("建造者名称不能为空 / Builder name cannot be empty".to_string()));
         }
 
         Ok(())

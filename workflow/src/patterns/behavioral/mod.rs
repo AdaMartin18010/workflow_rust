@@ -3,7 +3,7 @@
 //! 本模块实现了行为型工作流设计模式，包括责任链、命令、观察者等模式。
 //! This module implements behavioral workflow design patterns, including Chain of Responsibility, Command, Observer, etc.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use serde_json::json;
 
 /// 初始化行为型模式 / Initialize behavioral patterns
@@ -38,7 +38,7 @@ impl WorkflowPattern for WorkflowChainOfResponsibility {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流责任链模式 / Applying workflow chain of responsibility pattern");
 
         let result = WorkflowResult {
@@ -54,7 +54,7 @@ impl WorkflowPattern for WorkflowChainOfResponsibility {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -85,7 +85,7 @@ impl WorkflowPattern for WorkflowCommand {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流命令模式 / Applying workflow command pattern");
 
         let result = WorkflowResult {
@@ -103,7 +103,7 @@ impl WorkflowPattern for WorkflowCommand {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -134,7 +134,7 @@ impl WorkflowPattern for WorkflowInterpreter {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流解释器模式 / Applying workflow interpreter pattern");
 
         let result = WorkflowResult {
@@ -152,7 +152,7 @@ impl WorkflowPattern for WorkflowInterpreter {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -183,7 +183,7 @@ impl WorkflowPattern for WorkflowIterator {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流迭代器模式 / Applying workflow iterator pattern");
 
         let result = WorkflowResult {
@@ -201,7 +201,7 @@ impl WorkflowPattern for WorkflowIterator {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -232,7 +232,7 @@ impl WorkflowPattern for WorkflowMediator {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流中介者模式 / Applying workflow mediator pattern");
 
         let result = WorkflowResult {
@@ -250,7 +250,7 @@ impl WorkflowPattern for WorkflowMediator {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -281,7 +281,7 @@ impl WorkflowPattern for WorkflowMemento {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流备忘录模式 / Applying workflow memento pattern");
 
         let result = WorkflowResult {
@@ -299,7 +299,7 @@ impl WorkflowPattern for WorkflowMemento {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -330,7 +330,7 @@ impl WorkflowPattern for WorkflowObserver {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流观察者模式 / Applying workflow observer pattern");
 
         let result = WorkflowResult {
@@ -348,7 +348,7 @@ impl WorkflowPattern for WorkflowObserver {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -379,7 +379,7 @@ impl WorkflowPattern for WorkflowState {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流状态模式 / Applying workflow state pattern");
 
         let result = WorkflowResult {
@@ -397,7 +397,7 @@ impl WorkflowPattern for WorkflowState {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -428,7 +428,7 @@ impl WorkflowPattern for WorkflowStrategy {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流策略模式 / Applying workflow strategy pattern");
 
         let result = WorkflowResult {
@@ -446,7 +446,7 @@ impl WorkflowPattern for WorkflowStrategy {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -477,7 +477,7 @@ impl WorkflowPattern for WorkflowTemplateMethod {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流模板方法模式 / Applying workflow template method pattern");
 
         let result = WorkflowResult {
@@ -496,7 +496,7 @@ impl WorkflowPattern for WorkflowTemplateMethod {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }
@@ -527,7 +527,7 @@ impl WorkflowPattern for WorkflowVisitor {
         PatternCategory::Behavioral
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流访问者模式 / Applying workflow visitor pattern");
 
         let result = WorkflowResult {
@@ -545,7 +545,7 @@ impl WorkflowPattern for WorkflowVisitor {
         Ok(result)
     }
 
-    fn validate(&self, _context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, _context: &WorkflowContext) -> Result<(), PatternError> {
         Ok(())
     }
 }

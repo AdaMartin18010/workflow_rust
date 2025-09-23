@@ -7,14 +7,16 @@ pub mod advanced_examples;
 pub mod basic_workflow;
 pub mod middleware_examples;
 pub mod pattern_examples;
-pub mod rust189_examples;
+pub mod rust190_examples;
+pub mod simple_example;
 
 // 重新导出示例 / Re-export examples
 pub use advanced_examples::*;
 pub use basic_workflow::*;
 pub use middleware_examples::*;
 pub use pattern_examples::*;
-pub use rust189_examples::*;
+pub use rust190_examples::*;
+pub use simple_example::*;
 
 /// 运行所有示例 / Run all examples
 pub async fn run_all_examples() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,8 +26,8 @@ pub async fn run_all_examples() -> Result<(), Box<dyn std::error::Error>> {
     run_basic_workflow_examples().await?;
 
     // 运行 Rust 1.89 特性示例 / Run Rust 1.89 features examples
-    #[cfg(feature = "rust189")]
-    run_rust189_examples().await?;
+    #[cfg(feature = "rust190")]
+    run_rust190_examples().await?;
 
     // 运行设计模式示例 / Run design pattern examples
     #[cfg(feature = "patterns")]
@@ -37,6 +39,9 @@ pub async fn run_all_examples() -> Result<(), Box<dyn std::error::Error>> {
 
     // 运行高级示例 / Run advanced examples
     run_advanced_examples().await?;
+
+    // 运行简单示例 / Run simple example
+    run_simple_example().await?;
 
     tracing::info!("所有工作流系统示例运行完成 / All workflow system examples completed");
     Ok(())

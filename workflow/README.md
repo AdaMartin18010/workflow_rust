@@ -1,27 +1,27 @@
 # Rust 工作流系统 (Rust Workflow System)
 
-[![Rust Version](https://img.shields.io/badge/rust-1.89+-blue.svg)](https://www.rust-lang.org/)
+[![Rust Version](https://img.shields.io/badge/rust-1.90+-blue.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Crates.io](https://img.shields.io/crates/v/c14_workflow.svg)](https://crates.io/crates/c14_workflow)
-[![Standards Compliance](https://img.shields.io/badge/standards-ISO%2FIEC%2025010%20%7C%20IEEE%20830%20%7C%20BPMN%202.0-brightgreen.svg)](https://github.com/rust-lang/c14_workflow)
-[![University Benchmark](https://img.shields.io/badge/benchmark-MIT%20%7C%20Stanford%20%7C%20Temporal%20%7C%20Cadence-orange.svg)](https://github.com/rust-lang/c14_workflow)
+[![Crates.io](https://img.shields.io/crates/v/workflow.svg)](https://crates.io/crates/workflow)
+[![Standards Compliance](https://img.shields.io/badge/standards-ISO%2FIEC%2025010%20%7C%20IEEE%20830%20%7C%20BPMN%202.0-brightgreen.svg)](https://github.com/rust-lang/workflow)
+[![University Benchmark](https://img.shields.io/badge/benchmark-MIT%20%7C%20Stanford%20%7C%20Temporal%20%7C%20Cadence-orange.svg)](https://github.com/rust-lang/workflow)
 
-一个基于 Rust 1.89 特性的高级工作流系统，对标国际标准、著名大学课程和成熟开源框架，集成了二十多个设计模式和完整的中间件支持。
+一个基于 Rust 1.90 特性的高级工作流系统，对标国际标准、著名大学课程和成熟开源框架，集成了二十多个设计模式和完整的中间件支持。
 
-An advanced workflow system based on Rust 1.89 features, benchmarking against international standards, renowned university courses, and mature open-source frameworks, integrating over twenty design patterns and complete middleware support.
+An advanced workflow system based on Rust 1.90 features, benchmarking against international standards, renowned university courses, and mature open-source frameworks, integrating over twenty design patterns and complete middleware support.
 
 ## 🚀 特性 (Features)
 
-### Rust 1.89 语言特性集成 (Rust 1.89 Language Features Integration)
+### Rust 1.90 语言特性集成 (Rust 1.90 Language Features Integration)
 
-- **生命周期语法检查改进** - 更严格的生命周期标注和检查，强制明确标示隐藏的生命周期
-- **常量泛型推断** - 支持 `_` 占位符的常量泛型推断，让编译器自动推断数组长度等值
-- **跨平台文档测试** - 真正的跨平台文档测试支持，`cargo test --doc --target` 现在会真正运行测试
-- **FFI 改进** - `i128`/`u128` 类型在 `extern "C"` 中的安全使用，增强了与 C 语言的互操作性
-- **API 稳定化** - `Result::flatten` 等实用 API 的稳定化，提升了标准库的功能性
-- **异步闭包支持** - 允许在闭包中使用 `async` 关键字，简化异步编程模型
-- **稳定的 GATs** - 泛型关联类型的稳定化，使得在泛型中定义关联类型更加灵活和强大
-- **改进的错误处理** - 引入了更详细的错误信息，帮助开发者更快地定位和修复问题
+- **JIT 编译器改进** - 更高效的迭代器操作和内存分配，提升运行时性能
+- **const 特性增强** - 在 const 上下文中引用非静态变量，支持更复杂的编译时计算
+- **稳定 API** - `BufRead::skip_while`、`ControlFlow`、`DebugList::finish_non_exhaustive` 等 API 的稳定化
+- **异步迭代器改进** - 更高效的异步流处理，提升异步编程性能
+- **类型检查器优化** - 减少大型代码库的编译时间，提升开发体验
+- **内存分配器优化** - 在处理大量小对象时表现更优，减少内存碎片
+- **会话类型支持** - 集成 Ferrite 库，实现安全并发通信
+- **性能监控增强** - 内置性能监控和基准测试功能
 
 ### 国际标准对标 (International Standards Benchmarking)
 
@@ -119,17 +119,17 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-c14_workflow = { version = "1.0.0", features = ["full"] }
+workflow = { version = "1.0.0", features = ["full"] }
 ```
 
 ### 特性选项 (Feature Options)
 
 ```toml
 [dependencies]
-c14_workflow = { version = "1.89.0", features = ["rust189", "patterns", "middleware", "international_standards"] }
+workflow = { version = "1.90.0", features = ["rust190", "patterns", "middleware", "international_standards", "session_types"] }
 ```
 
-- `rust189` - 启用 Rust 1.89 特性支持
+- `rust190` - 启用 Rust 1.90 特性支持
 - `patterns` - 启用设计模式支持
 - `middleware` - 启用中间件系统
 - `international_standards` - 启用国际标准对标功能
@@ -137,6 +137,8 @@ c14_workflow = { version = "1.89.0", features = ["rust189", "patterns", "middlew
 - `monitoring` - 启用监控功能
 - `persistence` - 启用持久化支持
 - `database` - 启用数据库支持
+- `session_types` - 启用会话类型支持
+- `async_streams` - 启用异步流处理增强
 - `full` - 启用所有特性
 
 ## 🎯 快速开始 (Quick Start)
@@ -144,7 +146,7 @@ c14_workflow = { version = "1.89.0", features = ["rust189", "patterns", "middlew
 ### 基础工作流 (Basic Workflow)
 
 ```rust
-use c14_workflow::*;
+use workflow::*;
 use serde_json::json;
 
 #[tokio::main]
@@ -210,7 +212,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### 使用设计模式 (Using Design Patterns)
 
 ```rust
-use c14_workflow::patterns::*;
+use workflow::patterns::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -244,7 +246,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### 使用中间件 (Using Middleware)
 
 ```rust
-use c14_workflow::middleware::*;
+use workflow::middleware::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -278,10 +280,66 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### 使用 Rust 1.90 特性 (Using Rust 1.90 Features)
+
+```rust
+use workflow::rust190::*;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 使用 JIT 优化的处理器 / Use JIT-optimized processor
+    let mut processor = JITOptimizedProcessor::new(vec![1, 2, 3, 4, 5]);
+    let result = processor.process_data();
+    println!("处理结果: {:?}", result);
+    
+    // 使用异步流处理器 / Use async stream processor
+    let mut stream_processor = AsyncStreamProcessor::new(Duration::from_millis(100));
+    let data = AsyncData {
+        id: 1,
+        content: "test".to_string(),
+        timestamp: chrono::Utc::now(),
+        priority: 1,
+    };
+    stream_processor.add_data(data);
+    let stream = stream_processor.create_stream();
+    let results: Vec<_> = stream.collect().await;
+    println!("异步流处理结果: {:?}", results);
+    
+    // 使用会话类型工作流引擎 / Use session types workflow engine
+    let mut engine = SessionTypesWorkflowEngine::new();
+    let participants = vec![
+        Participant {
+            id: "participant1".to_string(),
+            role: ParticipantRole::Initiator,
+            endpoint: "endpoint1".to_string(),
+        },
+    ];
+    let session_id = engine.create_session(SessionProtocol::RequestResponse, participants).await?;
+    engine.start_session(&session_id).await?;
+    println!("会话已启动: {}", session_id);
+    
+    // 使用性能监控器 / Use performance monitor
+    let monitor = PerformanceMonitor::new();
+    let metrics = PerformanceMetrics {
+        operation_name: "test_operation".to_string(),
+        execution_time: Duration::from_millis(100),
+        memory_usage: 1024,
+        cpu_usage: 50.0,
+        throughput: 100.0,
+        error_count: 0,
+    };
+    monitor.record_metrics(metrics).await;
+    let stats = monitor.get_overall_stats().await;
+    println!("性能统计: {:?}", stats);
+    
+    Ok(())
+}
+```
+
 ### 使用国际标准对标 (Using International Standards Benchmarking)
 
 ```rust
-use c14_workflow::international_standards::*;
+use workflow::international_standards::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -314,7 +372,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### 使用框架对标 (Using Framework Benchmarking)
 
 ```rust
-use c14_workflow::international_standards::framework_benchmarking::*;
+use workflow::international_standards::framework_benchmarking::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -350,7 +408,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### 使用性能基准测试 (Using Performance Benchmarks)
 
 ```rust
-use c14_workflow::international_standards::performance_benchmarks::*;
+use workflow::international_standards::performance_benchmarks::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -390,7 +448,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## 🏗️ 项目结构 (Project Structure)
 
 ```text
-c14_workflow/
+workflow/
 ├── src/
 │   ├── lib.rs                 # 主库文件 / Main library file
 │   ├── types.rs              # 核心类型定义 / Core type definitions
@@ -398,22 +456,14 @@ c14_workflow/
 │   ├── state.rs              # 状态管理 / State management
 │   ├── error.rs              # 错误处理 / Error handling
 │   ├── tools.rs              # 工具函数 / Utility functions
-│   ├── rust189/              # Rust 1.89 特性 / Rust 1.89 features
+│   ├── rust190/              # Rust 1.90 特性 / Rust 1.90 features
 │   │   ├── mod.rs
 │   │   ├── features.rs
 │   │   ├── async_features.rs
-│   │   ├── lifetime.rs
-│   │   ├── const_generics.rs
-│   │   ├── doc_tests.rs
-│   │   ├── ffi.rs
+│   │   ├── const_features.rs
 │   │   ├── stable_apis.rs
-│   │   ├── concurrency.rs
-│   │   ├── type_system.rs
-│   │   ├── compiler.rs
 │   │   ├── performance.rs
-│   │   ├── error_handling.rs
-│   │   ├── macros.rs
-│   │   └── modules.rs
+│   │   └── session_types.rs
 │   ├── patterns/             # 设计模式 / Design patterns
 │   │   ├── mod.rs
 │   │   ├── creational/
@@ -439,7 +489,7 @@ c14_workflow/
 │   ├── examples/             # 示例代码 / Example code
 │   │   ├── mod.rs
 │   │   ├── basic_workflow.rs
-│   │   ├── rust189_examples.rs
+│   │   ├── rust190_examples.rs
 │   │   ├── pattern_examples.rs
 │   │   ├── middleware_examples.rs
 │   │   └── advanced_examples.rs
@@ -458,10 +508,10 @@ c14_workflow/
 
 ## 📚 文档 (Documentation)
 
-- [API 文档 / API Documentation](https://docs.rs/c14_workflow)
+- [API 文档 / API Documentation](https://docs.rs/workflow)
 - [设计模式指南 / Design Patterns Guide](docs/patterns/)
 - [中间件开发指南 / Middleware Development Guide](docs/middleware/)
-- [Rust 1.89 特性使用指南 / Rust 1.89 Features Usage Guide](docs/rust189/)
+- [Rust 1.90 特性使用指南 / Rust 1.90 Features Usage Guide](docs/rust190/)
 - [国际标准对标指南 / International Standards Benchmarking Guide](docs/international_standards/)
 - [大学课程对标指南 / University Course Benchmarking Guide](docs/university_courses/)
 - [开源框架对标指南 / Open Source Framework Benchmarking Guide](docs/framework_benchmarking/)
@@ -485,7 +535,7 @@ Run specific module tests:
 ```bash
 cargo test patterns
 cargo test middleware
-cargo test rust189
+cargo test rust190
 cargo test international_standards
 cargo test framework_benchmarking
 cargo test performance_benchmarks
@@ -534,9 +584,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 📞 支持 (Support)
 
-- 问题报告 / Issue Reports: [GitHub Issues](https://github.com/rust-lang/c14_workflow/issues)
-- 讨论 / Discussions: [GitHub Discussions](https://github.com/rust-lang/c14_workflow/discussions)
-- 文档 / Documentation: [GitHub Wiki](https://github.com/rust-lang/c14_workflow/wiki)
+- 问题报告 / Issue Reports: [GitHub Issues](https://github.com/rust-lang/workflow/issues)
+- 讨论 / Discussions: [GitHub Discussions](https://github.com/rust-lang/workflow/discussions)
+- 文档 / Documentation: [GitHub Wiki](https://github.com/rust-lang/workflow/wiki)
 
 ---
 

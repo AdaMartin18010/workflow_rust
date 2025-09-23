@@ -3,7 +3,7 @@
 //! 本模块实现了工作流原型模式，通过克隆现有工作流来创建新工作流。
 //! This module implements the workflow prototype pattern, creating new workflows by cloning existing ones.
 
-use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult};
+use crate::patterns::{PatternCategory, WorkflowContext, WorkflowPattern, WorkflowResult, PatternError};
 use crate::types::{StateTransition, WorkflowDefinition};
 use serde_json::json;
 use std::collections::HashMap;
@@ -204,7 +204,7 @@ impl WorkflowPattern for WorkflowPrototypePattern {
         PatternCategory::Creational
     }
 
-    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, String> {
+    fn apply(&self, context: &WorkflowContext) -> Result<WorkflowResult, PatternError> {
         tracing::info!("应用工作流原型模式 / Applying workflow prototype pattern");
 
         // 从上下文数据中提取原型参数 / Extract prototype parameters from context data
@@ -239,9 +239,9 @@ impl WorkflowPattern for WorkflowPrototypePattern {
         Ok(result)
     }
 
-    fn validate(&self, context: &WorkflowContext) -> Result<(), String> {
+    fn validate(&self, context: &WorkflowContext) -> Result<(), PatternError> {
         if context.data.get("prototype_name").is_none() {
-            return Err("原型名称不能为空 / Prototype name cannot be empty".to_string());
+            return Err(PatternError::InvalidContext("原型名称不能为空 / Prototype name cannot be empty".to_string()));
         }
 
         let prototype_name = context
@@ -251,10 +251,10 @@ impl WorkflowPattern for WorkflowPrototypePattern {
             .unwrap_or("");
 
         if !self.registry.has_prototype(prototype_name) {
-            return Err(format!(
+            return Err(PatternError::PatternNotSupported(format!(
                 "原型不存在 / Prototype not found: {}",
                 prototype_name
-            ));
+            )));
         }
 
         Ok(())
