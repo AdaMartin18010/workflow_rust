@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// JIT 编译器改进示例 / JIT Compiler Improvements Example
 /// 
@@ -212,6 +213,22 @@ pub struct WorkflowResult {
     pub compilation_stats: CompilationStats,
 }
 
+/// 语言特性示例：let-else 与 if let 链式 / Language features: let-else and if-let chains
+pub fn parse_positive_u32(input: &str) -> Option<u32> {
+    // let-else：若解析失败或非正数则直接返回 None
+    let value = u32::from_str(input).ok()?;
+    if value == 0 { return None; }
+    Some(value)
+}
+
+pub fn match_two_options(a: Option<u32>, b: Option<u32>) -> bool {
+    // if let 链式：当两个 Option 同时为 Some 且满足条件
+    if let (Some(x), Some(y)) = (a, b) {
+        return x > 0 && y > 0 && (x + y) > 10;
+    }
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -252,5 +269,19 @@ mod tests {
         let result = engine.execute_workflow().await.unwrap();
         assert!(!result.processed_data.is_empty());
         assert_eq!(result.object_stats.total_objects, 1000);
+    }
+    
+    #[test]
+    fn test_parse_positive_u32() {
+        assert_eq!(parse_positive_u32("12"), Some(12));
+        assert_eq!(parse_positive_u32("0"), None);
+        assert_eq!(parse_positive_u32("x"), None);
+    }
+
+    #[test]
+    fn test_match_two_options() {
+        assert!(match_two_options(Some(6), Some(6)));
+        assert!(!match_two_options(Some(5), Some(5))); // 10 不大于 10
+        assert!(!match_two_options(None, Some(1)));
     }
 }

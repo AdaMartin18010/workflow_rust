@@ -7,10 +7,10 @@ use std::io::{BufRead, BufReader, Cursor};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
-/// BufRead::skip_while 示例 / BufRead::skip_while Example
+/// 通过迭代器实现的 skip_while 示例 / Iterator-based skip_while Example
 /// 
-/// Rust 1.90 稳定了 BufRead::skip_while 方法
-/// Rust 1.90 stabilized the BufRead::skip_while method
+/// 使用 `BufRead::bytes()` 的迭代器并配合 `skip_while/map_while` 来跳过前导字符
+/// Use iterator from `BufRead::bytes()` with `skip_while/map_while` to skip leading chars
 pub struct BufReadProcessor {
     reader: BufReader<Cursor<Vec<u8>>>,
 }
@@ -39,6 +39,18 @@ impl BufReadProcessor {
                 break;
             }
         }
+        Ok(skipped)
+    }
+    
+    /// 使用 bytes().skip_while 跳过前导空白 / Skip leading whitespace via iterator
+    pub fn skip_whitespace_iter(&mut self) -> Result<usize, std::io::Error> {
+        // 读取一整行到内存，然后用迭代器跳过前导空白
+        let mut line = String::new();
+        self.reader.read_line(&mut line)?;
+        let skipped = line
+            .bytes()
+            .take_while(|b| b.is_ascii_whitespace())
+            .count();
         Ok(skipped)
     }
     
@@ -167,25 +179,31 @@ impl DebugListProcessor {
     /// 使用 Rust 1.90 稳定的 finish_non_exhaustive 方法
     /// Using Rust 1.90's stabilized finish_non_exhaustive method
     pub fn format_debug_output(&self) -> String {
-        use std::fmt::Write;
+        use std::fmt::Formatter;
+        use std::fmt::Write as _;
         
-        let mut output = String::new();
-        write!(output, "DebugListProcessor {{ items: [").unwrap();
+        // 通过 `DebugList` 构建器生成非穷尽列表
+        let mut s = String::new();
+        let _ = write!(&mut s, "DebugListProcessor(");
         
-        let display_count = self.items.len().min(self.max_display_items);
-        for (i, item) in self.items.iter().take(display_count).enumerate() {
-            if i > 0 {
-                write!(output, ", ").unwrap();
+        struct DL<'a> { items: &'a [DebugItem], n: usize }
+        impl std::fmt::Debug for DL<'_> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                let mut dl = f.debug_list();
+                for item in self.items.iter().take(self.n) {
+                    dl.entry(item);
+                }
+                if self.items.len() > self.n {
+                    dl.finish_non_exhaustive()
+                } else {
+                    dl.finish()
+                }
             }
-            write!(output, "{:?}", item).unwrap();
         }
-        
-        if self.items.len() > self.max_display_items {
-            write!(output, ", ..{} more items", self.items.len() - self.max_display_items).unwrap();
-        }
-        
-        write!(output, "] }}").unwrap();
-        output
+        let dl = DL { items: &self.items, n: self.max_display_items };
+        let _ = write!(&mut s, "{:?}", dl);
+        let _ = write!(&mut s, ")");
+        s
     }
     
     /// 获取项目统计 / Get item statistics
@@ -333,6 +351,11 @@ mod tests {
         let mut processor2 = BufReadProcessor::new(b"   hello world".to_vec());
         let line = processor2.read_line_skip_whitespace().unwrap();
         assert_eq!(line, "hello world");
+
+        // 使用基于迭代器的 skip_while
+        let mut processor3 = BufReadProcessor::new(b"\t  abc".to_vec());
+        let skipped3 = processor3.skip_whitespace_iter().unwrap();
+        assert_eq!(skipped3, 3);
     }
     
     #[test]
@@ -378,7 +401,8 @@ mod tests {
         let debug_output = processor.format_debug_output();
         assert!(debug_output.contains("item1"));
         assert!(debug_output.contains("item2"));
-        assert!(debug_output.contains("..1 more items"));
+        // DebugList::finish_non_exhaustive 的具体输出格式为通用 ".." 占位
+        assert!(debug_output.contains(".."));
         
         let stats = processor.get_stats();
         assert_eq!(stats.total_items, 3);

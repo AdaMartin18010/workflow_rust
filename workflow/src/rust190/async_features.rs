@@ -8,6 +8,7 @@ use std::time::Duration;
 use tokio::time::sleep;
 use futures::stream::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 
 /// 异步迭代器改进示例 / Async Iterator Improvements Example
 /// 
@@ -74,6 +75,39 @@ pub struct HighPerformanceStreamProcessor {
     batch_size: usize,
 }
 
+/// 在 trait 中直接使用 async fn / Async fn directly in trait
+///
+/// 体现 edition 2024 生态中广泛使用的写法
+#[allow(async_fn_in_trait)]
+pub trait WorkflowAsync {
+    /// 异步运行工作流 / Run workflow asynchronously
+    async fn run(&self) -> u32;
+
+    /// 带默认实现的异步转换 / Async transform with default implementation
+    async fn transform(&self, value: u32) -> u32 {
+        value + 1
+    }
+
+    /// 返回异步计算的通用接口（展示 RPITIT in traits 可替代形式）
+    fn compute(&self, base: u32) -> impl Future<Output = u32> + '_ {
+        async move { self.transform(base).await }
+    }
+}
+
+pub struct SimpleAsyncWorkflow(u32);
+
+impl SimpleAsyncWorkflow {
+    pub fn new(seed: u32) -> Self { Self(seed) }
+}
+
+impl WorkflowAsync for SimpleAsyncWorkflow {
+    async fn run(&self) -> u32 {
+        // 模拟异步等待
+        sleep(Duration::from_millis(1)).await;
+        self.0 * 2
+    }
+}
+
 impl HighPerformanceStreamProcessor {
     /// 创建新的高性能处理器 / Create new high-performance processor
     pub fn new(workers: usize, batch_size: usize) -> Self {
@@ -95,8 +129,8 @@ impl HighPerformanceStreamProcessor {
     where
         T: Send + 'static,
         F: Fn(T) -> Fut + Send + Sync + Clone + 'static,
-        Fut: std::future::Future<Output = R> + Send,
-        R: Send,
+        Fut: std::future::Future<Output = R> + Send + 'static,
+        R: Send + 'static,
     {
         stream
             .map(|item| {
@@ -117,8 +151,8 @@ impl HighPerformanceStreamProcessor {
     where
         T: Send + 'static,
         F: Fn(Vec<T>) -> Fut + Send + Sync + Clone + 'static,
-        Fut: std::future::Future<Output = Vec<R>> + Send,
-        R: Send,
+        Fut: std::future::Future<Output = Vec<R>> + Send + 'static,
+        R: Send + 'static,
     {
         let batches = stream
             .chunks(self.batch_size)
@@ -391,5 +425,18 @@ mod tests {
         assert_eq!(stats.total_streams, 1);
         assert_eq!(stats.total_items, 100);
         assert_eq!(stats.success_rate, 0.95);
+    }
+    
+    #[tokio::test]
+    async fn test_async_fn_in_trait() {
+        let wf = SimpleAsyncWorkflow::new(10);
+        let r = wf.run().await;
+        assert_eq!(r, 20);
+
+        let t = wf.transform(5).await;
+        assert_eq!(t, 6);
+
+        let c = wf.compute(7).await;
+        assert_eq!(c, 8);
     }
 }
