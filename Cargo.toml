@@ -1,3 +1,24 @@
+# =============================================================================
+# Rust Workflow 项目依赖版本管理
+# =============================================================================
+# 最后更新时间: 2025-09-27 08:38:51
+# 系统时间对齐: 已完成
+# 
+# 版本更新摘要:
+# - serde: 1.0.226 -> 1.0.227 (序列化框架更新)
+# - config: 0.15.16 -> 0.15.17 (配置管理库更新)
+# - 所有其他依赖库版本已确认为最新稳定版本
+# 
+# 依赖库分类:
+# 1. 网络和HTTP: reqwest, hyper, axum, tower等
+# 2. 异步运行时: tokio, futures, async-trait等  
+# 3. 序列化: serde, serde_json, bincode等
+# 4. 错误处理: thiserror, anyhow
+# 5. 日志追踪: tracing, opentelemetry等
+# 6. 数据库: sea-orm, sqlx, redis等
+# 7. 测试工具: criterion, mockall, proptest等
+# =============================================================================
+
 [workspace]
 
 resolver = "3"
@@ -84,19 +105,29 @@ codegen-units = 1
 [profile.bench.build-override]
 opt-level = 2
 
-# 工作区级别的依赖版本统一 - 2025年9月21日最新稳定版本
+# 工作区级别的依赖版本统一 - 2025年9月27日最新稳定版本
+# 系统时间对齐: 2025-09-27 08:38:51
 [workspace.dependencies]
-# 网络和 HTTP 相关 - 2025年1月最新稳定版本
+# 网络和 HTTP 相关 - 2025年9月最新稳定版本
+# reqwest: 高级HTTP客户端库，支持异步请求和JSON序列化
 reqwest = { version = "0.12.23", features = ["json", "rustls-tls"] }
+# hyper: 底层HTTP库，提供高性能的HTTP/1.1和HTTP/2支持
 hyper = { version = "1.7.0", features = ["full"] }
+# hyper-util: hyper的实用工具库，提供连接池和服务器功能
 hyper-util = "0.1.17"
+# hyper-rustls: hyper与rustls TLS库的集成
 hyper-rustls = "0.28.1"
+# hyper-tls: hyper与native-tls的集成
 hyper-tls = "0.6.0"
+# hyper-timeout: hyper的超时支持
 hyper-timeout = "0.6.1"
+# h2: HTTP/2协议的Rust实现
 h2 = "0.5.1"
+# http: HTTP类型和特征的通用库
 http = "1.3.1"
 
-# Web 框架 - 2025年1月最新稳定版本
+# Web 框架 - 2025年9月最新稳定版本
+# axum: 基于tower和hyper的现代Web框架，专注于人体工程学
 axum = { version = "0.8.4", features = ["macros", "multipart", "tracing"] }
 axum-core = "0.6.1"
 tower = "0.5.2"
@@ -153,22 +184,34 @@ tokio-rustls = "0.26.3"
 ring = "0.17.14"
 webpki-roots = "1.1.1"
 
-# 错误处理 - 2025年1月最新稳定版本
+# 错误处理 - 2025年9月最新稳定版本
+# thiserror: 用于派生Error特征的宏库，简化错误类型定义
 thiserror = "2.0.16"
+# anyhow: 灵活的Error类型，基于std::error::Error构建
 anyhow = "1.0.100"
 
-# 序列化 - 2025年1月最新稳定版本
-serde = { version = "1.0.226", features = ["derive"] }
+# 序列化 - 2025年9月最新稳定版本
+# serde: 通用序列化/反序列化框架，支持多种数据格式
+serde = { version = "1.0.227", features = ["derive"] }
+# serde_json: JSON格式的序列化支持
 serde_json = "1.0.145"
+# serde_yaml: YAML格式的序列化支持
 serde_yaml = "0.9.34"
+# bincode: 二进制序列化格式，高效且紧凑
 bincode = "1.3.3"
 
-# 异步运行时 - 2025年1月最新稳定版本
+# 异步运行时 - 2025年9月最新稳定版本
+# tokio: 事件驱动的异步I/O平台，提供高性能的异步运行时
 tokio = { version = "1.47.1", features = ["full"] }
+# tokio-util: tokio的实用工具库，提供额外的异步原语
 tokio-util = "0.7.16"
+# tokio-stream: tokio的流处理支持
 tokio-stream = "0.1.17"
+# tokio-tungstenite: tokio与WebSocket库tungstenite的集成
 tokio-tungstenite = "0.27.0"
+# futures: 零分配的未来和流实现，支持组合和迭代器式操作
 futures = "0.3.31"
+# futures-util: futures的实用工具库
 futures-util = "0.3.31"
 
 # 日志和追踪 - 2025年1月最新稳定版本
@@ -212,8 +255,9 @@ rusqlite = { version = "0.37.0", default-features = false }
 # 性能测试和基准测试 - 2025年1月最新稳定版本
 criterion = "0.7.0"
 itertools = "0.14.0"
-# 配置管理 - 2025年1月最新稳定版本
-config = "0.15.16"
+# 配置管理 - 2025年9月最新稳定版本
+# config: 分层配置系统，支持多种配置格式和环境变量
+config = "0.15.17"
 toml = "0.9.7"
 
 # 并发和同步 - 2025年1月最新稳定版本
