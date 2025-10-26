@@ -70,7 +70,7 @@ metrics-exporter-prometheus = { workspace = true }
 # 配置管理 / Configuration Management
 config = { workspace = true }
 # clap: 简单易用、高效且功能完整的命令行参数解析器
-clap = { version = "4.5.48", features = ["derive", "env"] }
+clap = { version = "4.5.50", features = ["derive", "env"] }
 
 # 测试支持 / Testing Support
 [dev-dependencies]

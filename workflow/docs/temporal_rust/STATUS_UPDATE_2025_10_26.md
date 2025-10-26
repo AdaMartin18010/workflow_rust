@@ -47,7 +47,7 @@
 
 ### 文档进度: 52% (12/23章)
 
-```
+```text
 已完成章节:
 ├── 00. 主索引 ✅
 ├── 01. 概念映射 ✅
@@ -74,7 +74,7 @@
 
 ### 代码进度: 70% (7/10模块)
 
-```
+```text
 核心模块:
 ├── types.rs ✅
 ├── error.rs ✅
@@ -254,14 +254,14 @@ pub struct InMemoryWorkflowStorage {
 
 ## 🏆 质量保证
 
-### 文档质量
+### 文档质量1
 
 - ✅ 结构清晰，层次分明
 - ✅ 代码示例完整可运行
 - ✅ Rust/Golang全面对比
 - ✅ 图表辅助理解
 
-### 代码质量
+### 代码质量1
 
 - ✅ 零linter错误
 - ✅ 类型安全设计
@@ -281,7 +281,7 @@ pub struct InMemoryWorkflowStorage {
 
 ### 本次更新统计
 
-```
+```text
 新增文件: 6个
 ├── 11_worker.md (45页)
 ├── 12_persistence.md (50页)
@@ -301,7 +301,7 @@ pub struct InMemoryWorkflowStorage {
 
 ### 项目累计统计
 
-```
+```text
 文档:
 ├── 章节数: 12/23 (52%)
 ├── 总页数: 600+页

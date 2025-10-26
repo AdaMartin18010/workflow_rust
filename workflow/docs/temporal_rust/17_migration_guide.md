@@ -122,7 +122,7 @@ impl Workflow for OrderProcessingWorkflow {
 
 ### Activity定义迁移
 
-#### Go SDK
+#### Go SDK 1
 
 ```go
 package activities
@@ -146,7 +146,7 @@ func ProcessPaymentActivity(ctx context.Context, orderID string) (string, error)
 }
 ```
 
-#### Temporal-Rust
+#### Temporal-Rust 1
 
 ```rust
 use temporal_rust::*;
@@ -195,7 +195,7 @@ impl Activity for ProcessPaymentActivity {
 
 ### 客户端使用迁移
 
-#### Go SDK
+#### Go SDK 2
 
 ```go
 package main
@@ -240,7 +240,7 @@ func main() {
 }
 ```
 
-#### Temporal-Rust
+#### Temporal-Rust 2
 
 ```rust
 use temporal_rust::*;
@@ -278,7 +278,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## ☕ 从Temporal Java SDK迁移
 
-### 概念映射
+### 概念映射1
 
 | Java SDK | Temporal-Rust | 说明 |
 |----------|---------------|------|
@@ -291,7 +291,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `Workflow.sleep()` | `ctx.sleep()` | 延时 |
 | `Workflow.getLogger()` | `tracing::info!()` | 日志 |
 
-### 工作流定义迁移
+### 工作流定义迁移1
 
 #### Java SDK
 
@@ -332,7 +332,7 @@ public class OrderWorkflowImpl implements OrderWorkflow {
 }
 ```
 
-#### Temporal-Rust
+#### Temporal-Rust 3
 
 ```rust
 pub struct OrderWorkflow;
