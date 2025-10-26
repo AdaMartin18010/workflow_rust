@@ -456,6 +456,18 @@ workflow/
 │   ├── state.rs              # 状态管理 / State management
 │   ├── error.rs              # 错误处理 / Error handling
 │   ├── tools.rs              # 工具函数 / Utility functions
+│   ├── temporal/             # 🌟 Temporal-based 实现 / Temporal-based Implementation
+│   │   ├── mod.rs            # 模块定义 / Module definition
+│   │   ├── types.rs          # 核心类型 (WorkflowId, RunId, etc.)
+│   │   ├── workflow.rs       # Workflow trait 和 context
+│   │   ├── activity.rs       # Activity trait 和 context
+│   │   ├── signal.rs         # Signal 定义和处理
+│   │   ├── query.rs          # Query 定义和处理
+│   │   ├── client.rs         # Workflow 客户端
+│   │   ├── worker.rs         # Workflow Worker
+│   │   ├── storage.rs        # 持久化抽象层
+│   │   ├── event.rs          # 事件溯源和历史
+│   │   └── error.rs          # 错误类型定义
 │   ├── rust190/              # Rust 1.90 特性 / Rust 1.90 features
 │   │   ├── mod.rs
 │   │   ├── features.rs
@@ -495,10 +507,20 @@ workflow/
 │   │   └── advanced_examples.rs
 │   └── tests/                # 测试代码 / Test code
 ├── docs/                     # 文档 / Documentation
+│   ├── temporal_rust/        # 🌟 Temporal-based 设计文档 / Temporal-based Design Documentation
+│   │   ├── 00_MASTER_INDEX.md          # 主索引 / Master Index
+│   │   ├── 01_concept_mapping.md       # 概念映射 / Concept Mapping
+│   │   ├── 02_architecture.md          # 架构设计 / Architecture
+│   │   ├── 03_type_system.md           # 类型系统 / Type System
+│   │   ├── 04_workflow_definition.md   # 工作流定义 / Workflow Definition
+│   │   ├── 05_activity_definition.md   # Activity定义 / Activity Definition
+│   │   ├── 06_signals_and_queries.md   # Signal与Query / Signals and Queries
+│   │   └── examples/                   # 示例文档 / Example Documentation
+│   │       └── rust_go_comparison.md   # Rust/Go 对比 / Rust/Go Comparison
+│   ├── deprecated/           # 已废弃的旧文档 / Deprecated Old Documentation
 │   ├── ai/                   # AI 相关文档 / AI-related documentation
 │   ├── algorithms/           # 算法文档 / Algorithm documentation
 │   ├── iot/                  # IoT 相关文档 / IoT-related documentation
-│   ├── program/              # 编程相关文档 / Programming-related documentation
 │   └── rust_design/          # Rust 设计文档 / Rust design documentation
 ├── examples/                 # 独立示例 / Standalone examples
 ├── benches/                  # 基准测试 / Benchmarks
@@ -507,6 +529,68 @@ workflow/
 ```
 
 ## 📚 文档 (Documentation)
+
+### 🌟 Temporal-Based 设计文档 (Temporal-Based Design Documentation)
+
+**全新基于Temporal的Rust 1.90工作流系统设计，完整对标Temporal框架！**
+
+#### 📊 项目进度（Progress）
+
+- **[78%完成报告 / 78% Complete](docs/temporal_rust/PROGRESS_78_PERCENT.md)** ⭐ NEW - 最新进展（**78%完成** ⬆️ +8%）
+- **[第3轮进度 / Final Progress](docs/temporal_rust/PROGRESS_FINAL_2025_10_26.md)** - 第3轮进展（70%完成）
+- **[第2轮进度 / Latest Progress](docs/temporal_rust/LATEST_PROGRESS_2025_10_26.md)** - 第2轮进展（61%完成）
+- **[项目状态更新 / Status Update](docs/temporal_rust/STATUS_UPDATE_2025_10_26.md)** - 第1轮进展（52%完成）
+- **[进度报告 / Progress Report](docs/temporal_rust/PROGRESS_REPORT.md)** - 详细进度追踪
+- **[工作总结 / Work Summary](docs/temporal_rust/WORK_SUMMARY_2025_10_26.md)** - 工作总结
+
+#### 📖 核心文档（Core Documentation）
+
+- **[主索引 / Master Index](docs/temporal_rust/00_MASTER_INDEX.md)** - 文档导航中心（23章完整规划）
+
+**第一部分：核心概念（Concepts）**
+
+- **[01. 概念映射 / Concept Mapping](docs/temporal_rust/01_concept_mapping.md)** ✅ - Temporal概念全面映射（含Rust/Go对比）
+- **[02. 架构设计 / Architecture](docs/temporal_rust/02_architecture.md)** ✅ - 系统架构设计
+- **[03. 类型系统 / Type System](docs/temporal_rust/03_type_system.md)** ✅ - 完整类型系统设计
+
+**第二部分：工作流开发（Workflow Development）**
+
+- **[04. 工作流定义 / Workflow Definition](docs/temporal_rust/04_workflow_definition.md)** ✅ - 工作流定义（含Rust/Go对比）
+- **[05. Activity定义 / Activity Definition](docs/temporal_rust/05_activity_definition.md)** ✅ - Activity定义（含Rust/Go对比）
+- **[06. Signal与Query / Signals and Queries](docs/temporal_rust/06_signals_and_queries.md)** ✅ - 工作流交互（含Rust/Go对比）
+
+**第三部分：高级特性（Advanced Features）**
+
+- **[07. 生命周期管理 / Lifecycle](docs/temporal_rust/07_lifecycle.md)** ✅ - 工作流生命周期、事件、取消、Continue As New
+- **[08. 重试与超时 / Retry & Timeout](docs/temporal_rust/08_retry_and_timeout.md)** ✅ - 重试策略、超时机制、心跳
+- **[09. 版本管理 / Versioning](docs/temporal_rust/09_versioning.md)** ✅ - 工作流版本、Schema演化
+- **[10. 测试策略 / Testing](docs/temporal_rust/10_testing.md)** ✅ - 单元测试、集成测试、端到端测试
+
+**第四部分：运行时与部署（Runtime & Deployment）**
+
+- **[11. Worker配置 / Worker Configuration](docs/temporal_rust/11_worker.md)** ✅ - Worker架构、配置、并发控制、健康检查
+- **[12. 持久化实现 / Persistence](docs/temporal_rust/12_persistence.md)** ✅ - 事件存储、PostgreSQL实现、性能优化
+- **[13. 客户端API / Client API](docs/temporal_rust/13_client_api.md)** ✅ - WorkflowClient、启动/Signal/Query、连接管理
+- **[14. 可观测性 / Observability](docs/temporal_rust/14_observability.md)** ✅ - Prometheus、OpenTelemetry、Tracing、监控实践
+- **[15. 部署指南 / Deployment](docs/temporal_rust/15_deployment.md)** ✅ ⭐ NEW - 单机/Docker/K8s部署、高可用架构
+
+**第五部分：测试与最佳实践（Testing & Best Practices）**
+
+- **[16. 最佳实践 / Best Practices](docs/temporal_rust/16_best_practices.md)** ✅ - 工作流设计、错误处理、性能优化、安全考虑
+- **[17. 迁移指南 / Migration Guide](docs/temporal_rust/17_migration_guide.md)** ✅ ⭐ NEW - 从Go/Java SDK迁移、概念对照、迁移步骤
+
+**第六部分：完整示例（Complete Examples）**
+
+- **[18. 基础示例 / Basic Examples](docs/temporal_rust/18_basic_examples.md)** ✅ ⭐ NEW - Hello World、用户注册、Signal/Query、错误处理
+
+#### 💻 示例代码（Example Code）
+
+- **[电商订单处理（Rust）/ E-commerce Order (Rust)](examples/ecommerce_order.rs)** ⭐ NEW - 完整的Saga模式示例（850行）
+- **[电商订单处理（Golang对比）/ E-commerce Order (Go Comparison)](docs/temporal_rust/examples/ecommerce_order_go.md)** ⭐ NEW - Rust/Golang逐行对比
+
+**图例**: ✅ = 已完成 | ⭐ = 本次新增 | 🔄 = 进行中
+
+### 📖 原有文档 (Original Documentation)
 
 - [API 文档 / API Documentation](https://docs.rs/workflow)
 - [设计模式指南 / Design Patterns Guide](docs/patterns/)

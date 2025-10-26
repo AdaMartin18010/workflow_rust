@@ -39,6 +39,11 @@ c14_workflow 是一个基于 Rust 1.89 特性的高级工作流系统，对标�
 ### 开源框架对标
 
 - **Temporal 框架对标** - 对标 Temporal 工作流引擎的特性和性能
+  - [📊 **Temporal框架完整对标分析**](./TEMPORAL_FRAMEWORK_COMPARISON.md) - 87页详细对比分析
+  - [🗺️ **Temporal对齐实施路线图**](./TEMPORAL_ALIGNMENT_ROADMAP.md) - 48周详细开发计划  
+  - [🚀 **Temporal快速参考指南**](./TEMPORAL_QUICK_REFERENCE.md) - API速查与迁移指南
+  - [📋 **Temporal集成总结报告**](./TEMPORAL_INTEGRATION_SUMMARY.md) - 执行摘要
+  - [📚 **Temporal文档导航中心**](./TEMPORAL_DOCS_INDEX.md) - 全部文档索引
 - **Cadence 框架对标** - 对标 Cadence 工作流引擎的特性和性能
 - **工作流执行引擎** - 支持工作流执行、活动执行、Saga 模式
 - **补偿机制** - 实现完整的补偿和重试策略
